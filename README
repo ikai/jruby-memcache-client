@@ -1,0 +1,14 @@
+I'm not sure what the rules are regarding me distributing the Whalin MemCache client library for Java, but it can be
+downloaded here:
+
+http://www.whalin.com/memcached/
+
+As you can see in line 1 I am using version 2.0.1.
+
+This project contains a lot of prints and such since it is still under active development. My goal is to produce a version
+that works as the Ruby memcache-client gem.
+
+The motivation for me to work on this wrapper comes from the fact that in production, the standard Ruby MemCache client
+can cause a thread to hang. In the Glassfish application server, by default there are 5 Grizzly connectors that handle incoming
+requests. A site that uses MemCache heavily can quickly cause all Grizzly connectors to block and take down a site. I'm hoping
+that this work I am doing here will help others adopt JRuby as a production platform for their Ruby on Rails applications.
