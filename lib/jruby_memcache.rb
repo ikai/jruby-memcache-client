@@ -151,23 +151,3 @@ class JMemCache
   
 end
 
-m = JMemCache.new
-m.set 'hi', 12345
-puts m.get 'hi'
-m.set 'hi', 12345, 0, true
-m.incr 'hi'
-puts m.get 'hi', true
-m.decr 'hi'
-puts m.get 'hi', true
-m.delete 'hi'
-puts m.get 'hi'
-m.set 'hi', 12345123
-m.flush_all
-puts m.get 'hi'
-puts m.stats
-
-h = { :test => '123ha' }
-m.set 'test', h
-puts m.get 'test'
-puts m.get('test').class
-
