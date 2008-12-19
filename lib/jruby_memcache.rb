@@ -14,6 +14,14 @@ class JMemCache
     :namespace   => nil,
     :readonly    => false,
     :multithread => true,
+    :pool_initial_size => 5,
+    :pool_min_size => 5,
+    :pool_max_size => 250,
+    :pool_max_idle => (1000 * 60 * 60 * 6),
+    :pool_maintenance_thread_sleep => 30,
+    :pool_use_nagle => false,
+    :pool_socket_timeout => 3000,
+    :pool_socket_connect_timeout => 3000
   }
 
   ##
@@ -44,7 +52,7 @@ class JMemCache
   attr_reader :servers
   
   def initialize(*args)
-    servers = []
+    @servers = []
     opts = {}
 
     case args.length
@@ -53,20 +61,18 @@ class JMemCache
       arg = args.shift
       case arg
       when Hash   then opts = arg
-      when Array  then servers = arg
-      when String then servers = [arg]
+      when Array  then @servers = arg
+      when String then @servers = [arg]
       else raise ArgumentError, 'first argument must be Array, Hash or String'
       end
     when 2 then
-      servers, opts = args
+      @servers, opts = args
     else
       raise ArgumentError, "wrong number of arguments (#{args.length} for 2)"
     end
 
     opts = DEFAULT_OPTIONS.merge opts
-    
-    # DO STUFF HERE
-    
+        
     @namespace   = opts[:namespace]
 
     @client = MemCachedClient.new
@@ -74,46 +80,42 @@ class JMemCache
     @client.primitiveAsString = true 
   	@client.sanitizeKeys = false 
   	
-    servers = [
-			  "127.0.0.1:11211"
-      ]
-    weights = [1,1,1]
+    weights = Array.new(@servers.size, DEFAULT_WEIGHT)
 
 		pool = SockIOPool.getInstance
 
     # // set the servers and the weights
-    pool.servers = servers.to_java(:string)
+    pool.servers = @servers.to_java(:string)
     pool.weights = weights.to_java(:Integer)
-    
-    # 
+        
     # // set some basic pool settings
     # // 5 initial, 5 min, and 250 max conns
     # // and set the max idle time for a conn
     # // to 6 hours
-    pool.initConn = 5
-    pool.minConn = 5 
-    pool.maxConn = 250
-    pool.maxIdle = 1000 * 60 * 60 * 6 
+    pool.initConn = opts[:pool_initial_size]
+    pool.minConn = opts[:pool_min_size] 
+    pool.maxConn = opts[:pool_max_size]
+    pool.maxIdle = opts[:pool_max_idle]
 
     # // set the sleep for the maint thread
     # // it will wake up every x seconds and
     # // maintain the pool size
-    pool.maintSleep = 30 
+    pool.maintSleep = opts[:pool_maintenance_thread_sleep]
     # 
     # // set some TCP settings
     # // disable nagle
     # // set the read timeout to 3 secs
     # // and don't set a connect timeout
-    pool.nagle = false 
-    pool.socketTO = 3000
-    pool.socketConnectTO = 3000 
+    pool.nagle = opts[:pool_use_nagle]
+    pool.socketTO = opts[:pool_socket_timeout]
+    pool.socketConnectTO = opts[:pool_socket_connect_timeout]
     pool.initialize__method
 		
   end
   
 
   def get(key, raw = false)
-    value = @client.get(key)
+    value = @client.get(make_cache_key(key))
     return nil if value.nil?
     
     value = Marshal.load value unless raw
@@ -122,25 +124,29 @@ class JMemCache
   
   def set(key, value, expiry = 0, raw = false)
     value = Marshal.dump value unless raw
-    @client.set(key, value)
+    @client.set(make_cache_key(key), value)
   end
   
   def add(key, value, expiry = 0, raw = false)
-    @client.add(key, value)
+    @client.add(make_cache_key(key), value)
   end
   
   def delete(key, expiry = 0)
-    @client.delete(key)
+    @client.delete(make_cache_key(key))
   end
   
   def incr(key, amount = 1)
-    @client.incr(key, amount)
+    @client.incr(make_cache_key(key), amount)
   end
   
   def decr(key, amount = 1)
-    @client.decr(key, amount)
+    @client.decr(make_cache_key(key), amount)
   end
   
+  def []=(key, value)
+    set key, value
+  end
+    
   def flush_all
     @client.flushAll
   end
@@ -159,6 +165,18 @@ class JMemCache
     end
     stats_hash
   end
+  
+  protected
+  
+  def make_cache_key(key)
+    if namespace.nil? then
+      key
+    else
+      "#{@namespace}:#{key}"
+    end
+  end
+  
+  class MemCacheError < RuntimeError; end
   
 end
 
