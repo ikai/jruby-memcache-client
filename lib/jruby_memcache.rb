@@ -82,37 +82,41 @@ class JMemCache
   	
     weights = Array.new(@servers.size, DEFAULT_WEIGHT)
 
-		pool = SockIOPool.getInstance
+		@pool = SockIOPool.getInstance
 
     # // set the servers and the weights
-    pool.servers = @servers.to_java(:string)
-    pool.weights = weights.to_java(:Integer)
+    @pool.servers = @servers.to_java(:string)
+    @pool.weights = weights.to_java(:Integer)
         
     # // set some basic pool settings
     # // 5 initial, 5 min, and 250 max conns
     # // and set the max idle time for a conn
     # // to 6 hours
-    pool.initConn = opts[:pool_initial_size]
-    pool.minConn = opts[:pool_min_size] 
-    pool.maxConn = opts[:pool_max_size]
-    pool.maxIdle = opts[:pool_max_idle]
+    @pool.initConn = opts[:pool_initial_size]
+    @pool.minConn = opts[:pool_min_size] 
+    @pool.maxConn = opts[:pool_max_size]
+    @pool.maxIdle = opts[:pool_max_idle]
 
     # // set the sleep for the maint thread
     # // it will wake up every x seconds and
     # // maintain the pool size
-    pool.maintSleep = opts[:pool_maintenance_thread_sleep]
+    @pool.maintSleep = opts[:pool_maintenance_thread_sleep]
     # 
     # // set some TCP settings
     # // disable nagle
     # // set the read timeout to 3 secs
     # // and don't set a connect timeout
-    pool.nagle = opts[:pool_use_nagle]
-    pool.socketTO = opts[:pool_socket_timeout]
-    pool.socketConnectTO = opts[:pool_socket_connect_timeout]
-    pool.initialize__method
+    @pool.nagle = opts[:pool_use_nagle]
+    @pool.socketTO = opts[:pool_socket_timeout]
+    @pool.socketConnectTO = opts[:pool_socket_connect_timeout]
+    @pool.aliveCheck = true
+    @pool.initialize__method
 		
   end
   
+  def alive?
+    @pool.servers.to_a.any?
+  end
 
   def get(key, raw = false)
     value = @client.get(make_cache_key(key))
@@ -124,7 +128,13 @@ class JMemCache
   
   def set(key, value, expiry = 0, raw = false)
     value = Marshal.dump value unless raw
-    @client.set(make_cache_key(key), value)
+    key = make_cache_key(key)
+    if expiry == 0
+      @client.set key, value
+    else
+      expiration_date = java.util.Date.new((Time.now.to_i + expiry) * 1000)
+      @client.set key, value, expiration_date
+    end
   end
   
   def add(key, value, expiry = 0, raw = false)
@@ -165,7 +175,7 @@ class JMemCache
     end
     stats_hash
   end
-  
+    
   protected
   
   def make_cache_key(key)
