@@ -150,6 +150,10 @@ class JMemCache
     @client.stats.each do |server, stats|
       stats_hash[server] = Hash.new
       stats.each do |key, value|
+        unless key == 'version'
+          value = value.to_f
+          value = value.to_i if value == value.ceil
+        end
         stats_hash[server][key] = value
       end
     end

@@ -5,6 +5,7 @@ require File.dirname(__FILE__) + '/../lib/jruby_memcache'
 describe JMemCache do
   
   before(:each) do
+    @server = "127.0.0.1:11211"
     @client = JMemCache.new
   end
   
@@ -38,9 +39,23 @@ describe JMemCache do
   end
   
   describe "#stats" do
-    it "should return a hash" do      
+    it "should return a hash" do    
       @client.stats.should be_instance_of(Hash)
     end
+    
+    it "should return 0 for curr_items" do
+      @client.stats[@server]['curr_items'].should == 0
+    end
+    
+    it "should return a float for rusage_system and rusage_user" do
+      @client.stats[@server]['rusage_system'].should be_instance_of(Float)
+      @client.stats[@server]['rusage_user'].should be_instance_of(Float)
+    end
+    
+    it "should return a String for version" do
+      @client.stats[@server]['version'].should be_instance_of(String)
+    end
+  
   end
       
 end
