@@ -34,6 +34,24 @@ describe JMemCache do
     end
   end
   
+  describe "namespacing" do
+    before(:each) do
+      @ns = 'namespace'
+      @nsclient = JMemCache.new [ @server ] , :namespace => @ns
+      @nsclient.flush_all
+    end
+    
+    it "should set values to the given namespace" do
+      @nsclient.set "test", 333
+      @client.get("#{@ns}:test").should == 333
+    end
+    
+    it "should not set a value without the given namespace" do
+      @nsclient.set "test", 333
+      @client.get("test").should_not == 333
+    end
+  end
+  
   describe "after setting a value to MemCache" do
     before(:each) do
       @client.set 'key', 'value'
