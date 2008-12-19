@@ -3,10 +3,10 @@ require 'spec'
 require File.dirname(__FILE__) + '/../lib/jruby_memcache'
 
 describe JMemCache do
-  
-  before(:each) do
+  before(:all) do
     @server = "127.0.0.1:11211"
     @client = JMemCache.new
+    @client.flush_all
   end
   
   after(:each) do
@@ -57,7 +57,36 @@ describe JMemCache do
     end
   
   end
-      
+  
+  describe "#incr" do
+    
+    it "should increment a value by 1 without a second parameter" do
+      @client.set 'incr', 100, 0, true
+      @client.incr 'incr'
+      @client.get('incr', true).to_i.should == 101
+    end
+    
+    it "should increment a value by a given second parameter" do
+      @client.set 'incr', 100, 0, true
+      @client.incr 'incr', 20
+      @client.get('incr', true).to_i.should == 120
+    end
+  end
+  
+  describe "#decr" do
+    
+    it "should decrement a value by 1 without a second parameter" do
+      @client.set 'decr', 100, 0, true
+      @client.decr 'decr'
+      @client.get('decr', true).to_i.should == 99
+    end
+    
+    it "should decrement a value by a given second parameter" do
+      @client.set 'decr', 100, 0, true
+      @client.decr 'decr', 20
+      @client.get('decr', true).to_i.should == 80
+    end
+  end
 end
 
 # m = JMemCache.new
