@@ -146,7 +146,14 @@ class JMemCache
   end
   
   def stats
-    @client.stats
+    stats_hash = {}
+    @client.stats.each do |server, stats|
+      stats_hash[server] = Hash.new
+      stats.each do |key, value|
+        stats_hash[server][key] = value
+      end
+    end
+    stats_hash
   end
   
 end
