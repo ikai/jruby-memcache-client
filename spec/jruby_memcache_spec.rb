@@ -41,6 +41,11 @@ describe JMemCache do
       @nsclient.flush_all
     end
     
+    it "should set and get values transparently" do
+      @nsclient.set "test", 333
+      @nsclient.get("test").should == 333
+    end
+    
     it "should set values to the given namespace" do
       @nsclient.set "test", 333
       @client.get("#{@ns}:test").should == 333
@@ -49,6 +54,22 @@ describe JMemCache do
     it "should not set a value without the given namespace" do
       @nsclient.set "test", 333
       @client.get("test").should_not == 333
+    end
+    
+    it "should delete values in the given namespace" do
+      @nsclient.set "test", 333
+      @nsclient.delete "test"
+      @nsclient.get("test").should be_nil
+    end
+    
+    it "should increment in the given namespace" do
+      @nsclient.set "test", 333, 0, true
+      @nsclient.incr("test").should == 334
+    end
+    
+    it "should decrement values in the given namespace" do
+      @nsclient.set "test", 333, 0, true
+      @nsclient.decr("test").should == 332
     end
   end
   
