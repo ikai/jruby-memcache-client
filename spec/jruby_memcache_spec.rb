@@ -87,25 +87,13 @@ describe JMemCache do
       @client.get('decr', true).to_i.should == 80
     end
   end
+  
+  describe "with Ruby Objects" do
+    it "should be able to transparently set and get equivalent Ruby objects" do
+      obj = { :test => :hi }
+      @client.set('obj', obj)
+      @client.get('obj').should == obj
+    end
+  end
 end
-
-# m = JMemCache.new
-# m.set 'hi', 12345
-# puts m.get 'hi'
-# m.set 'hi', 12345, 0, true
-# m.incr 'hi'
-# puts m.get 'hi', true
-# m.decr 'hi'
-# puts m.get 'hi', true
-# m.delete 'hi'
-# puts m.get 'hi'
-# m.set 'hi', 12345123
-# m.flush_all
-# puts m.get 'hi'
-# puts m.stats
-# 
-# h = { :test => '123ha' }
-# m.set 'test', h
-# puts m.get 'test'
-# puts m.get('test').class
 
