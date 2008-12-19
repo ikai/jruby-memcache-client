@@ -72,7 +72,7 @@ describe JMemCache do
       @nsclient.decr("test").should == 332
     end
   end
-  
+    
   describe "after setting a value to MemCache" do
     before(:each) do
       @client.set 'key', 'value'
@@ -92,8 +92,14 @@ describe JMemCache do
       @client.get("key").should be_nil
     end
     
+    it "should work exactly the same if the []= operator were used" do
+      @client['key'] = 'val'
+      @client.get('key').should == 'val'
+    end
+    
   end
   
+
   describe "#stats" do
     it "should return a hash" do    
       @client.stats.should be_instance_of(Hash)
