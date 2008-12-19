@@ -109,7 +109,6 @@ class JMemCache
     @pool.nagle = opts[:pool_use_nagle]
     @pool.socketTO = opts[:pool_socket_timeout]
     @pool.socketConnectTO = opts[:pool_socket_connect_timeout]
-    @pool.aliveCheck = true
     @pool.initialize__method
 		
   end
