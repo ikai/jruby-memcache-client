@@ -5,7 +5,7 @@ require File.dirname(__FILE__) + '/../lib/jruby_memcache'
 describe JMemCache do
   before(:all) do
     @server = "127.0.0.1:11211"
-    @client = JMemCache.new
+    @client = JMemCache.new @server
     @client.flush_all
   end
   
@@ -15,6 +15,23 @@ describe JMemCache do
   
   it "should return nil for a non-existent key" do
     @client.get('non-existent-key').should be_nil
+  end
+  
+  describe "setting servers" do
+    it "should work if the instance is created with a single String argument" do
+      @client = JMemCache.new @server
+      @client.servers.should == [@server]
+    end
+    
+    it "should work if the instance is created with an Array" do
+      @client = JMemCache.new [ @server ]
+      @client.servers.should == [ @server ]
+    end
+    
+    it "should work if the instance is created with a Hash" do
+      @client = JMemCache.new [ @server ], :namespace => 'test'
+      @client.servers.should == [ @server ]
+    end
   end
   
   describe "after setting a value to MemCache" do
@@ -43,9 +60,9 @@ describe JMemCache do
       @client.stats.should be_instance_of(Hash)
     end
     
-    it "should return 0 for curr_items" do
-      @client.stats[@server]['curr_items'].should == 0
-    end
+    # it "should return 0 for curr_items" do
+    #   @client.stats[@server]['curr_items'].should == 0
+    # end
     
     it "should return a float for rusage_system and rusage_user" do
       @client.stats[@server]['rusage_system'].should be_instance_of(Float)
