@@ -16,7 +16,7 @@ describe JMemCache do
   it "should return nil for a non-existent key" do
     @client.get('non-existent-key').should be_nil
   end
-  
+    
   describe "setting servers" do
     it "should work if the instance is created with a single String argument" do
       @client = JMemCache.new @server
@@ -156,6 +156,24 @@ describe JMemCache do
       @client.set('obj', obj)
       @client.get('obj').should == obj
     end
+  end
+  
+  describe "using set with an expiration" do
+    it "should make a value unretrievable if the expiry is set to a negative value" do
+      @client.set('key', 'val', -1)
+      @client.get('key').should be_nil
+    end
+    
+    it "should make a value retrievable for only the amount of time if a value is given" do
+      @client.set('key', 'val', 2)
+      @client.get('key').should == 'val'
+      sleep(3)
+      @client.get('key').should be_nil
+    end
+  end
+    
+  describe "#get_multi" do
+    it "should be implemented"
   end
 end
 
