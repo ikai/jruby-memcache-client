@@ -78,7 +78,7 @@ class JMemCache
     @client = MemCachedClient.new
     
     @client.primitiveAsString = true 
-  	@client.sanitizeKeys = false 
+  	@client.sanitizeKeys = false
   	
     weights = Array.new(@servers.size, DEFAULT_WEIGHT)
 
@@ -109,6 +109,7 @@ class JMemCache
     @pool.nagle = opts[:pool_use_nagle]
     @pool.socketTO = opts[:pool_socket_timeout]
     @pool.socketConnectTO = opts[:pool_socket_connect_timeout]
+    @pool.aliveCheck = true
     @pool.initialize__method
 		
   end
@@ -121,12 +122,16 @@ class JMemCache
     value = @client.get(make_cache_key(key))
     return nil if value.nil?
     
-    value = Marshal.load value unless raw
+#    value = Marshal.load(value) unless raw
+    value = YAML::load value unless raw
+    
     value
   end
   
   def set(key, value, expiry = 0, raw = false)
-    value = Marshal.dump value unless raw
+#    value = Marshal.dump(value) unless raw
+    value = YAML::dump(value) unless raw    
+    # value = value.to_s if value.is_a? Fixnum
     key = make_cache_key(key)
     if expiry == 0
       @client.set key, value
