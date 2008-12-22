@@ -1,14 +1,25 @@
-I'm not sure what the rules are regarding me distributing the Whalin MemCache client library for Java, but it can be
-downloaded here:
-
-http://www.whalin.com/memcached/
-
-As you can see in line 1 I am using version 2.0.1.
-
-This project contains a lot of prints and such since it is still under active development. My goal is to produce a version
-that works as the Ruby memcache-client gem.
 
 The motivation for me to work on this wrapper comes from the fact that in production, the standard Ruby MemCache client
 can cause a thread to hang. In the Glassfish application server, by default there are 5 Grizzly connectors that handle incoming
 requests. A site that uses MemCache heavily can quickly cause all Grizzly connectors to block and take down a site. I'm hoping
 that this work I am doing here will help others adopt JRuby as a production platform for their Ruby on Rails applications.
+
+As of right now this code only provides a very minimal amount of functionality, but it is enough to use with the Rails cache and cache_fu.
+
+To use this code, copy the files in lib/* to the Rails lib/ directory. Add these lines of code to production.rb:
+
+if defined? JRUBY_VERSION
+  require 'jmem_cache_store'
+  config.cache_store = JMemCacheStore.new(MEMCACHED_CONFIG['servers'])
+  ActsAsCached.config[:store] = config.cache_store  
+end
+
+I have not tested this in production yet.
+
+
+
+Notes:
+------
+
+- Ruby objects are serialized to YAML rather than using Marshal. The reason for this is that the character \222 deserializes weird. YAML, in my tests,
+runs about 10x as slow serializing an object, and about 3x as slow deserializing.
