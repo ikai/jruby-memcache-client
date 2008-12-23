@@ -33,9 +33,3 @@ After building log4j, you'll want to put it in your classpath.
 
 While developing, it usually makes sense to have some verbose logging to STDOUT. You can accomplish this by placing creating a file called
 log4j.properties in your CLASSPATH or your RAILS_ROOT/lib directory. There is an example of this file in the properties directory of this project.
-
-Notes:
-------
-
-- Ruby objects are serialized to YAML rather than using Marshal. The reason for this is that the character \222 deserializes weird. YAML, in my tests,
-runs about 10x as slow serializing an object, and about 3x as slow deserializing.
