@@ -1,5 +1,14 @@
 
-The motivation for me to work on this wrapper comes from the fact that in production, the standard Ruby MemCache client can cause a thread to hang. In the Glassfish application server, by default there are 5 Grizzly connectors that handle incoming requests. A site that uses MemCache heavily can quickly cause all Grizzly connectors to block and take down a site. I'm hoping that this work I am doing here will help others adopt JRuby as a production platform for their Ruby on Rails applications.
+This project is a JRuby wrapper of the Java MemCache library by Greg Whalin:
+
+http://www.whalin.com/memcached/
+
+The motivation for me to work on this wrapper comes from the fact that in production, the standard Ruby MemCache client can cause a thread to hang. In the Glassfish application server, by default there are 5 Grizzly connectors that handle incoming requests. A site that uses MemCache heavily can quickly cause all Grizzly connectors to block and take down a site. I'm hoping that this work I am doing here will help others adopt JRuby as a production platform for their Ruby on Rails applications. 
+
+The Ruby MemCache library was never written with threaded applications in mind. All threads use the same socket, and multithreaded mode basically wraps the IO with a Mutex. The Java library provides several features that are not available in the Ruby MemCache library:
+
+- connection pooling
+- socket timeouts. In forks of the Ruby MemCache library this is achieved either with a Mongrel timeout or use of the Ruby Timeout class, which, at least at the writing of this README, will work unpredictably when being used as a failsafe against hanging IO.
 
 As of right now this code only provides a very minimal amount of functionality, but it is enough to use with the Rails cache and cache_fu.
 
@@ -24,9 +33,3 @@ After building log4j, you'll want to put it in your classpath.
 
 While developing, it usually makes sense to have some verbose logging to STDOUT. You can accomplish this by placing creating a file called
 log4j.properties in your CLASSPATH or your RAILS_ROOT/lib directory. There is an example of this file in the properties directory of this project.
-
-Notes:
-------
-
-- Ruby objects are serialized to YAML rather than using Marshal. The reason for this is that the character \222 deserializes weird. YAML, in my tests,
-runs about 10x as slow serializing an object, and about 3x as slow deserializing.
