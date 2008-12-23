@@ -23,6 +23,9 @@ class JMemCache
     :pool_socket_timeout => 3000,
     :pool_socket_connect_timeout => 3000
   }
+  
+  ## CHARSET for Marshalling
+  MARSHALLING_CHARSET = 'ISO-8859-1'
 
   ##
   # Default memcached port.
@@ -122,15 +125,21 @@ class JMemCache
     value = @client.get(make_cache_key(key))
     return nil if value.nil?
     
-#    value = Marshal.load(value) unless raw
-    value = YAML::load value unless raw
+    unless raw
+      marshal_bytes = java.lang.String.new(value).getBytes(MARSHALLING_CHARSET)
+      value = Marshal.load(String.from_java_bytes(marshal_bytes))
+    end
+    # value = YAML::load value unless raw
     
     value
   end
   
   def set(key, value, expiry = 0, raw = false)
-#    value = Marshal.dump(value) unless raw
-    value = YAML::dump(value) unless raw    
+    unless raw
+      marshal_bytes = Marshal.dump(value).to_java_bytes
+      value = java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
+    end
+    # value = YAML::dump(value) unless raw    
     # value = value.to_s if value.is_a? Fixnum
     key = make_cache_key(key)
     if expiry == 0
