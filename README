@@ -1,8 +1,5 @@
 
-The motivation for me to work on this wrapper comes from the fact that in production, the standard Ruby MemCache client
-can cause a thread to hang. In the Glassfish application server, by default there are 5 Grizzly connectors that handle incoming
-requests. A site that uses MemCache heavily can quickly cause all Grizzly connectors to block and take down a site. I'm hoping
-that this work I am doing here will help others adopt JRuby as a production platform for their Ruby on Rails applications.
+The motivation for me to work on this wrapper comes from the fact that in production, the standard Ruby MemCache client can cause a thread to hang. In the Glassfish application server, by default there are 5 Grizzly connectors that handle incoming requests. A site that uses MemCache heavily can quickly cause all Grizzly connectors to block and take down a site. I'm hoping that this work I am doing here will help others adopt JRuby as a production platform for their Ruby on Rails applications.
 
 As of right now this code only provides a very minimal amount of functionality, but it is enough to use with the Rails cache and cache_fu.
 
