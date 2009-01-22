@@ -1,5 +1,7 @@
+This project is a FORK of the Ikai Lan project:
+http://github.com/ikai/jruby-memcache-client/tree
 
-This project is a JRuby wrapper of the Java MemCache library by Greg Whalin:
+This project is a JRuby wrapper of the Java MemCache library by Greg Whalin
 
 http://www.whalin.com/memcached/
 
@@ -14,18 +16,28 @@ As of right now this code only provides a very minimal amount of functionality, 
 
 To use this code, copy the files in lib/* to the Rails lib/ directory. Add these lines of code to production.rb:
 
-if defined? JRUBY_VERSION
-  require 'jmem_cache_store'
-  config.cache_store = JMemCacheStore.new(MEMCACHED_CONFIG['servers'])
-  ActsAsCached.config[:store] = config.cache_store  
-end
+memcache_options = {
+  :namespace => 'fortaleza:production_live:',
+}
+memcached_servers = [ ENV['MEMCACHED_LOCATION'] || '0.0.0.0:11211']
+
+
+# Constant used by libs
+CACHE = JMemCache.new memcached_servers, memcache_options if RUBY_PLATFORM =~ /java/
+
+
+You can download diffenrent versions of the memcached .jar file here
+--------------------------------------------------------------------
+http://www.whalin.com/memcached/#download
+
 
 I have not tested this in production yet.
 
-Dependencies:
---------------
 
-The Java MemCache client requires log4j to work correctly. You can download log4j here:
+Dependencies if you want to use the log4j .jar file
+----------------------------------------------------
+
+You can download log4j here:
 
 http://logging.apache.org/log4j/1.2/download.html
 

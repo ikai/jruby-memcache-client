@@ -1,5 +1,4 @@
-require 'java'
-require File.dirname(__FILE__) + '/java_memcached-release_2.0.1.jar'
+require 'java/java_memcached-release_2.0.1.jar'
 
 class JMemCache
   include_class 'com.danga.MemCached.MemCachedClient'
