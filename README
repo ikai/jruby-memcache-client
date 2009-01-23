@@ -20,7 +20,7 @@ if defined? JRUBY_VERSION
   ActsAsCached.config[:store] = config.cache_store  
 end
 
-I have not tested this in production yet.
+We are running the version that uses YAML marshalling in production and it is very stable. 
 
 Dependencies:
 --------------
