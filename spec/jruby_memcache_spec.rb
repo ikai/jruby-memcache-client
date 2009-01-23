@@ -43,20 +43,20 @@ describe JMemCache do
     end
     
     it "should set and get values transparently" do
-      @nsclient.get("test").to_i.should == 333
+      @nsclient.get("test", true).to_i.should == 333
     end
     
     it "should set values to the given namespace" do
-      @client.get("#{@ns}:test").to_i.should == 333
+      @client.get("#{@ns}:test", true).to_i.should == 333
     end
     
     it "should not set a value without the given namespace" do
-      @client.get("test").to_i.should_not == 333
+      @client.get("test", true).to_i.should_not == 333
     end
     
     it "should delete values in the given namespace" do
       @nsclient.delete "test"
-      @nsclient.get("test").should be_nil
+      @nsclient.get("test", true).should be_nil
     end
     
     it "should increment in the given namespace" do
