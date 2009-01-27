@@ -1,6 +1,3 @@
-require 'jruby_memcache'
-require 'active_support'
-
 # Shamelessly copied from ActiveSupport::Cache::MemCacheStore.
 # This makes use of the JRuby-MemCache-Client as a CacheStore. 
 # The JRuby-MemCache-Client behaves slightly different from the standard MemCache
