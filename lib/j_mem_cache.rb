@@ -168,6 +168,10 @@ class JMemCache
   def []=(key, value)
     set key, value
   end
+
+  def [](key)
+    get key
+  end
     
   def flush_all
     @client.flushAll
