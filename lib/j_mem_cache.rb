@@ -69,51 +69,52 @@ class JMemCache
       end
     when 2 then
       @servers, opts = args
+      @servers = [@servers].flatten
     else
       raise ArgumentError, "wrong number of arguments (#{args.length} for 2)"
     end
 
     opts = DEFAULT_OPTIONS.merge opts
         
-    @namespace   = opts[:namespace]
+    @namespace = opts[:namespace] || opts["namespace"]
 
     @client = MemCachedClient.new
     
     @client.primitiveAsString = true 
-  	@client.sanitizeKeys = false
+    @client.sanitizeKeys = false
   	
     weights = Array.new(@servers.size, DEFAULT_WEIGHT)
 
-		@pool = SockIOPool.getInstance
-
-    # // set the servers and the weights
-    @pool.servers = @servers.to_java(:string)
-    @pool.weights = weights.to_java(:Integer)
-        
-    # // set some basic pool settings
-    # // 5 initial, 5 min, and 250 max conns
-    # // and set the max idle time for a conn
-    # // to 6 hours
-    @pool.initConn = opts[:pool_initial_size]
-    @pool.minConn = opts[:pool_min_size] 
-    @pool.maxConn = opts[:pool_max_size]
-    @pool.maxIdle = opts[:pool_max_idle]
-
-    # // set the sleep for the maint thread
-    # // it will wake up every x seconds and
-    # // maintain the pool size
-    @pool.maintSleep = opts[:pool_maintenance_thread_sleep]
-    # 
-    # // set some TCP settings
-    # // disable nagle
-    # // set the read timeout to 3 secs
-    # // and don't set a connect timeout
-    @pool.nagle = opts[:pool_use_nagle]
-    @pool.socketTO = opts[:pool_socket_timeout]
-    @pool.socketConnectTO = opts[:pool_socket_connect_timeout]
-    @pool.aliveCheck = true
-    @pool.initialize__method
-		
+    @pool = SockIOPool.getInstance
+    unless @pool.initialized?
+      # // set the servers and the weights
+      @pool.servers = @servers.to_java(:string)
+      @pool.weights = weights.to_java(:Integer)
+      
+      # // set some basic pool settings
+      # // 5 initial, 5 min, and 250 max conns
+      # // and set the max idle time for a conn
+      # // to 6 hours
+      @pool.initConn = opts[:pool_initial_size]
+      @pool.minConn = opts[:pool_min_size] 
+      @pool.maxConn = opts[:pool_max_size]
+      @pool.maxIdle = opts[:pool_max_idle]
+      
+      # // set the sleep for the maint thread
+      # // it will wake up every x seconds and
+      # // maintain the pool size
+      @pool.maintSleep = opts[:pool_maintenance_thread_sleep]
+      # 
+      # // set some TCP settings
+      # // disable nagle
+      # // set the read timeout to 3 secs
+      # // and don't set a connect timeout
+      @pool.nagle = opts[:pool_use_nagle]
+      @pool.socketTO = opts[:pool_socket_timeout]
+      @pool.socketConnectTO = opts[:pool_socket_connect_timeout]
+      @pool.aliveCheck = true
+      @pool.initialize__method
+    end
   end
   
   def alive?
@@ -123,23 +124,15 @@ class JMemCache
   def get(key, raw = false)
     value = @client.get(make_cache_key(key))
     return nil if value.nil?
-    
     unless raw
       marshal_bytes = java.lang.String.new(value).getBytes(MARSHALLING_CHARSET)
       value = Marshal.load(String.from_java_bytes(marshal_bytes))
     end
-    # value = YAML::load value unless raw
-    
     value
   end
   
   def set(key, value, expiry = 0, raw = false)
-    unless raw
-      marshal_bytes = Marshal.dump(value).to_java_bytes
-      value = java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
-    end
-    # value = YAML::dump(value) unless raw    
-    # value = value.to_s if value.is_a? Fixnum
+    value = marshal_value(value) unless raw
     key = make_cache_key(key)
     if expiry == 0
       @client.set key, value
@@ -150,6 +143,7 @@ class JMemCache
   end
   
   def add(key, value, expiry = 0, raw = false)
+    value = marshal_value(value) unless raw
     @client.add(make_cache_key(key), value)
   end
   
@@ -158,11 +152,17 @@ class JMemCache
   end
   
   def incr(key, amount = 1)
-    @client.incr(make_cache_key(key), amount)
+    value = get(key) || 0
+    value += amount
+    set key, value
+    value
   end
   
   def decr(key, amount = 1)
-    @client.decr(make_cache_key(key), amount)
+    value = get(key) || 0
+    value -= amount
+    set key, value
+    value
   end
   
   def []=(key, value)
@@ -201,7 +201,12 @@ class JMemCache
       "#{@namespace}:#{key}"
     end
   end
-  
+
+  def marshal_value(value)
+    marshal_bytes = Marshal.dump(value).to_java_bytes
+    java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
+  end
+    
   class MemCacheError < RuntimeError; end
   
 end

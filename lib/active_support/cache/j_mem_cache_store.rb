@@ -4,7 +4,7 @@
 # client, so we have to design around it.
 module ActiveSupport
   module Cache
-    class JMemCacheStore < Store
+    class JMemCacheStore < MemCacheStore
   
       attr_reader :addresses
       
@@ -22,73 +22,6 @@ module ActiveSupport
         addresses = ["localhost:11211"] if addresses.empty?
         @addresses = addresses
         @data = JMemCache.new(addresses, options)
-      end
-      
-      def read(key, options = nil) # :nodoc:
-        super
-        @data.get(key, raw?(options))
-      end
-      
-      
-      def write(key, value, options = nil)
-        super
-        method = options && options[:unless_exist] ? :add : :set
-        
-        value = value.to_s if raw?(options)
-        @data.send(method, key, value, expires_in(options), raw?(options))
-      rescue MemCache::MemCacheError => e
-        logger.error("MemCacheError (#{e}): #{e.message}")
-        false
-      end
-      
-      def delete(key, options = nil) # :nodoc:
-        super
-        @data.delete(key, expires_in(options))
-      rescue MemCache::MemCacheError => e
-        logger.error("MemCacheError (#{e}): #{e.message}")
-        false
-      end
-      
-      def exist?(key, options = nil) # :nodoc:
-        !read(key, options).nil?
-  end
-      
-      def increment(key, amount = 1) # :nodoc:
-        log("incrementing", key, amount)
-        
-        @data.incr(key, amount)
-      rescue MemCache::MemCacheError
-        nil
-      end
-      
-      def decrement(key, amount = 1) # :nodoc:
-        log("decrement", key, amount)
-        
-        @data.decr(key, amount)
-      rescue MemCache::MemCacheError
-        nil
-      end
-      
-      def delete_matched(matcher, options = nil) # :nodoc:
-        super
-        raise "Not supported by Memcache"
-      end
-      
-      def clear
-        @data.flush_all
-      end
-      
-      def stats
-        @data.stats
-      end
-      
-      private
-      def expires_in(options)
-        (options && options[:expires_in]) || 0
-      end
-      
-      def raw?(options)
-        options && options[:raw]
       end
     end
   end
