@@ -1,11 +1,10 @@
-This project is a FORK of the Ikai Lan project:
-http://github.com/ikai/jruby-memcache-client/tree
+This projects provides memcached based stores for sessions and Rails caching for Rails applications deployed on top of JRuby. It is an extension of Ikai Lan's jruby-memcache-client project hosted at http://github.com/ikai/jruby-memcache-client/tree
 
 This project is a JRuby wrapper of the Java MemCache library by Greg Whalin
 
 http://www.whalin.com/memcached/
 
-The motivation for me to work on this wrapper comes from the fact that in production, the standard Ruby MemCache client can cause a thread to hang. In the Glassfish application server, by default there are 5 Grizzly connectors that handle incoming requests. A site that uses MemCache heavily can quickly cause all Grizzly connectors to block and take down a site. I'm hoping that this work I am doing here will help others adopt JRuby as a production platform for their Ruby on Rails applications. 
+In production, the standard Ruby MemCache client can cause a thread to hang. In the Glassfish application server, by default there are 5 Grizzly connectors that handle incoming requests. A site that uses MemCache heavily can quickly cause all Grizzly connectors to block and take down a site. I'm hoping that this work I am doing here will help others adopt JRuby as a production platform for their Ruby on Rails applications. 
 
 The Ruby MemCache library was never written with threaded applications in mind. All threads use the same socket, and multithreaded mode basically wraps the IO with a Mutex. The Java library provides several features that are not available in the Ruby MemCache library:
 
@@ -14,21 +13,51 @@ The Ruby MemCache library was never written with threaded applications in mind. 
 
 As of right now this code only provides a very minimal amount of functionality, but it is enough to use with the Rails cache and cache_fu.
 
-To use this code, copy the files in lib/* to the Rails lib/ directory. Add these lines of code to production.rb:
+Installation
+------------
+This project is packaged as a Rails plugin. You can install it by running the following command from the root of your Ruby on Rails application:
+
+% script/plugin install git://github.com/fredjean/jruby_memcache_client.git
+
+Configuration
+-------------
+The JRuby MemCache client uses the same configuration options as the regular MemCache client. Here is how to build the configuration in your environment.rb file:
 
 memcache_options = {
   :namespace => 'fortaleza:production_live:',
 }
 memcached_servers = [ ENV['MEMCACHED_LOCATION'] || '0.0.0.0:11211']
 
-
 # Constant used by libs
 CACHE = JMemCache.new memcached_servers, memcache_options if RUBY_PLATFORM =~ /java/
 
+Note that this may vary based on your particular configuration method and environment.
 
-You can download diffenrent versions of the memcached .jar file here
---------------------------------------------------------------------
-http://www.whalin.com/memcached/#download
+Using JRuby MemCache Client for Session Storage
+-----------------------------------------------
+Add the following to environment.rb (or appropriate environment configuration file):
+
+ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS.merge!({'cache' => CACHE})
+config.action_controller.session_store = :j_mem_cache_store
+
+Using JRuby MemCache Client for Rails Caching
+---------------------------------------------
+Add the following to your environment.rb:
+
+memcache_servers = [ '127.0.0.1:11211']
+config.cache_store = :j_mem_cache_store, memcache_servers
+
+It should accept the same options that can be passed to the normal MemCacheStore.
+
+Caching in the Development Environment
+--------------------------------------
+Rails doesn't cache in the development environment by default. You can enable caching by adding the following line in your development.rb file:
+
+config.action_controller.perform_caching = true
+
+Using Different Versions of the memcached Client .jar File
+----------------------------------------------------------
+We are providing the MemCache client that does not require Log4J by default. You can go to http://www.whalin.com/memcached/#download to download a different client if you choose so. One version of the client does use Log4J for logging purposes.
 
 
 We are running the version that uses YAML marshalling in production and it is very stable. 
@@ -36,7 +65,6 @@ We are running the version that uses YAML marshalling in production and it is ve
 
 Dependencies if you want to use the log4j .jar file
 ----------------------------------------------------
-
 You can download log4j here:
 
 http://logging.apache.org/log4j/1.2/download.html
