@@ -1,9 +1,13 @@
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
+require 'spec/rake/spectask'
 
 desc 'Default: run unit tests.'
-task :default => :test
+task :default => :spec
+
+desc 'Run the specs for the jruby_memcache_client plugin.'
+Spec::Rake::SpecTask.new
 
 desc 'Test the ruby_memcache_client plugin.'
 Rake::TestTask.new(:test) do |t|
