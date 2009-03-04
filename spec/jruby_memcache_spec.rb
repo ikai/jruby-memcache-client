@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'spec'
-require File.dirname(__FILE__) + '/../lib/jruby_memcache'
+require File.dirname(__FILE__) + '/../lib/j_mem_cache'
 
 describe JMemCache do
   before(:all) do
@@ -39,24 +39,24 @@ describe JMemCache do
       @ns = 'namespace'
       @nsclient = JMemCache.new [ @server ] , :namespace => @ns
       @nsclient.flush_all
-      @nsclient.set "test", 333, 0, true      
+      @nsclient.set "test", 333, 0    
     end
     
     it "should set and get values transparently" do
-      @nsclient.get("test", true).to_i.should == 333
+      @nsclient.get("test").to_i.should == 333
     end
     
     it "should set values to the given namespace" do
-      @client.get("#{@ns}:test", true).to_i.should == 333
+      @client.get("#{@ns}:test").to_i.should == 333
     end
     
     it "should not set a value without the given namespace" do
-      @client.get("test", true).to_i.should_not == 333
+      @client.get("test").to_i.should_not == 333
     end
     
     it "should delete values in the given namespace" do
       @nsclient.delete "test"
-      @nsclient.get("test", true).should be_nil
+      @nsclient.get("test").should be_nil
     end
     
     it "should increment in the given namespace" do
@@ -118,30 +118,30 @@ describe JMemCache do
   describe "#incr" do
     
     it "should increment a value by 1 without a second parameter" do
-      @client.set 'incr', 100, 0, true
+      @client.set 'incr', 100, 0
       @client.incr 'incr'
-      @client.get('incr', true).to_i.should == 101
+      @client.get('incr').to_i.should == 101
     end
     
     it "should increment a value by a given second parameter" do
-      @client.set 'incr', 100, 0, true
+      @client.set 'incr', 100, 0
       @client.incr 'incr', 20
-      @client.get('incr', true).to_i.should == 120
+      @client.get('incr').to_i.should == 120
     end
   end
   
   describe "#decr" do
     
     it "should decrement a value by 1 without a second parameter" do
-      @client.set 'decr', 100, 0, true
+      @client.set 'decr', 100, 0
       @client.decr 'decr'
-      @client.get('decr', true).to_i.should == 99
+      @client.get('decr').to_i.should == 99
     end
     
     it "should decrement a value by a given second parameter" do
-      @client.set 'decr', 100, 0, true
+      @client.set 'decr', 100, 0
       @client.decr 'decr', 20
-      @client.get('decr', true).to_i.should == 80
+      @client.get('decr').to_i.should == 80
     end
   end
   
