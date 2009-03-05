@@ -137,14 +137,17 @@ class JMemCache
     if expiry == 0
       @client.set key, value
     else
-      expiration_date = java.util.Date.new((Time.now.to_i + expiry) * 1000)
-      @client.set key, value, expiration_date
+      @client.set key, value, expiration(expiry)
     end
   end
   
   def add(key, value, expiry = 0, raw = false)
     value = marshal_value(value) unless raw
-    @client.add(make_cache_key(key), value)
+    if expiry == 0
+      @client.add make_cache_key(key), value
+    else
+      @client.add make_cache_key(key), value, expiration(expiry)
+    end
   end
   
   def delete(key, expiry = 0)
@@ -201,7 +204,11 @@ class JMemCache
       "#{@namespace}:#{key}"
     end
   end
-
+  
+  def expiration(expiry)
+    java.util.Date.new((Time.now.to_i + expiry) * 1000)
+  end
+  
   def marshal_value(value)
     marshal_bytes = Marshal.dump(value).to_java_bytes
     java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
