@@ -175,6 +175,7 @@ class JMemCache
   def [](key)
     get key
   end
+
     
   def flush_all
     @client.flushAll
