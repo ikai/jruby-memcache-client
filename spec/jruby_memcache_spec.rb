@@ -32,6 +32,11 @@ describe JMemCache do
       @client = JMemCache.new [ @server ], :namespace => 'test'
       @client.servers.should == [ @server ]
     end
+
+    it "should work with an explicit pool name" do
+      @client = JMemCache.new([@server], :pool_name => 'new_pool')
+      @client.pool_name.should == 'new_pool'
+    end
   end
   
   describe "namespacing" do
