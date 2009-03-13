@@ -20,7 +20,8 @@ class JMemCache
     :pool_maintenance_thread_sleep => 30,
     :pool_use_nagle => false,
     :pool_socket_timeout => 3000,
-    :pool_socket_connect_timeout => 3000
+    :pool_socket_connect_timeout => 3000,
+    :pool_name => 'default'
   }
   
   ## CHARSET for Marshalling
@@ -52,6 +53,11 @@ class JMemCache
   # The servers this client talks to.  Play at your own peril.
 
   attr_reader :servers
+
+  ##
+  # The configured socket pool name for this client.
+
+  attr_reader :pool_name
   
   def initialize(*args)
     @servers = []
@@ -77,15 +83,16 @@ class JMemCache
     opts = DEFAULT_OPTIONS.merge opts
         
     @namespace = opts[:namespace] || opts["namespace"]
+    @pool_name = opts[:pool_name] || opts["pool_name"]
 
-    @client = MemCachedClient.new
+    @client = MemCachedClient.new(@pool_name)
     
     @client.primitiveAsString = true 
     @client.sanitizeKeys = false
   	
     weights = Array.new(@servers.size, DEFAULT_WEIGHT)
 
-    @pool = SockIOPool.getInstance
+    @pool = SockIOPool.getInstance(@pool_name)
     unless @pool.initialized?
       # // set the servers and the weights
       @pool.servers = @servers.to_java(:string)
