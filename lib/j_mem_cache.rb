@@ -50,8 +50,6 @@ class JMemCache
 
   ##
   # The servers this client talks to.  Play at your own peril.
-
-  attr_reader :servers
   
   def initialize(*args)
     @servers = []
@@ -115,6 +113,10 @@ class JMemCache
       @pool.aliveCheck = true
       @pool.initialize__method
     end
+  end
+  
+  def servers
+    @pool.get_servers.to_a rescue []
   end
   
   def alive?
