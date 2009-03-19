@@ -50,10 +50,6 @@ class JMemCache
   attr_reader :multithread
 
   ##
-  # The servers this client talks to.  Play at your own peril.
-
-
-  ##
   # The configured socket pool name for this client.
   attr_reader :pool_name
   
