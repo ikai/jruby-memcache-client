@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/java/java_memcached-release_2.0.1.jar'
 
-class JMemCache
+class MemCache
   include_class 'com.danga.MemCached.MemCachedClient'
   include_class 'com.danga.MemCached.SockIOPool'
     
@@ -202,23 +202,22 @@ class JMemCache
   end
     
   protected
-  
-  def make_cache_key(key)
-    if namespace.nil? then
-      key
-    else
-      "#{@namespace}:#{key}"
+    def make_cache_key(key)
+      if namespace.nil? then
+        key
+      else
+        "#{@namespace}:#{key}"
+      end
     end
-  end
-  
-  def expiration(expiry)
-    java.util.Date.new((Time.now.to_i + expiry) * 1000)
-  end
-  
-  def marshal_value(value)
-    marshal_bytes = Marshal.dump(value).to_java_bytes
-    java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
-  end
+    
+    def expiration(expiry)
+      java.util.Date.new((Time.now.to_i + expiry) * 1000)
+    end
+    
+    def marshal_value(value)
+      marshal_bytes = Marshal.dump(value).to_java_bytes
+      java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
+    end
     
   class MemCacheError < RuntimeError; end
   

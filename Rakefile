@@ -1,27 +1,13 @@
-require 'rake'
-require 'rake/testtask'
-require 'rake/rdoctask'
-require 'spec/rake/spectask'
-
-desc 'Default: run unit tests.'
-task :default => :spec
-
-desc 'Run the specs for the jruby_memcache_client plugin.'
-Spec::Rake::SpecTask.new
-
-desc 'Test the ruby_memcache_client plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.libs << 'test'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
-end
-
-desc 'Generate documentation for the ruby_memcache_client plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'Ruby-memcache-client'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gemspec|
+    gemspec.name = "jruby-memcache-client"
+    gemspec.summary = "A drop in replacement for Ruby's memcache-client."
+    gemspec.email = "abhi@traytwo.com"
+    gemspec.homepage = "http://github.com/abhiyerra/jruby-memcache-client"
+    gemspec.description = "A drop in replacement for Ruby's memcache-client."
+    gemspec.authors = ["Abhi Yerra", "Ikai Lan"]
+  end
+rescue LoadError
+  puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
 end
