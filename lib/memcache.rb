@@ -137,7 +137,7 @@ class MemCache
   end
   
   alias :[] :get
-  
+
   def set(key, value, expiry = 0, raw = false)
     value = marshal_value(value) unless raw
     key = make_cache_key(key)
@@ -149,7 +149,7 @@ class MemCache
   end
   
   alias :[]= :set
-  
+
   def add(key, value, expiry = 0, raw = false)
     value = marshal_value(value) unless raw
     if expiry == 0
