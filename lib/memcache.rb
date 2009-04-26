@@ -136,6 +136,8 @@ class MemCache
     value
   end
   
+  alias :[] :get
+  
   def set(key, value, expiry = 0, raw = false)
     value = marshal_value(value) unless raw
     key = make_cache_key(key)
@@ -145,6 +147,8 @@ class MemCache
       @client.set key, value, expiration(expiry)
     end
   end
+  
+  alias :[]= :set
   
   def add(key, value, expiry = 0, raw = false)
     value = marshal_value(value) unless raw
@@ -173,15 +177,6 @@ class MemCache
     value
   end
   
-  def []=(key, value)
-    set key, value
-  end
-
-  def [](key)
-    get key
-  end
-
-    
   def flush_all
     @client.flushAll
   end

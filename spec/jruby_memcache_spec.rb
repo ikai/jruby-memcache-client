@@ -1,11 +1,11 @@
 require 'rubygems'
 require 'spec'
-require File.dirname(__FILE__) + '/../lib/j_mem_cache'
+require File.dirname(__FILE__) + '/../lib/memcache'
 
-describe JMemCache do
+describe MemCache do
   before(:all) do
     @server = "127.0.0.1:11211"
-    @client = JMemCache.new @server
+    @client = MemCache.new @server
     @client.flush_all
   end
   
@@ -19,22 +19,22 @@ describe JMemCache do
     
   describe "setting servers" do
     it "should work if the instance is created with a single String argument" do
-      @client = JMemCache.new @server
+      @client = MemCache.new @server
       @client.servers.should == [@server]
     end
     
     it "should work if the instance is created with an Array" do
-      @client = JMemCache.new [ @server ]
+      @client = MemCache.new [ @server ]
       @client.servers.should == [ @server ]
     end
     
     it "should work if the instance is created with a Hash" do
-      @client = JMemCache.new [ @server ], :namespace => 'test'
+      @client = MemCache.new [ @server ], :namespace => 'test'
       @client.servers.should == [ @server ]
     end
 
     it "should work with an explicit pool name" do
-      @client = JMemCache.new([@server], :pool_name => 'new_pool')
+      @client = MemCache.new([@server], :pool_name => 'new_pool')
       @client.pool_name.should == 'new_pool'
     end
   end
@@ -42,7 +42,7 @@ describe JMemCache do
   describe "namespacing" do
     before(:each) do
       @ns = 'namespace'
-      @nsclient = JMemCache.new [ @server ] , :namespace => @ns
+      @nsclient = MemCache.new [ @server ] , :namespace => @ns
       @nsclient.flush_all
       @nsclient.set "test", 333, 0    
     end
@@ -81,7 +81,7 @@ describe JMemCache do
     it "should be able to retrieve the value" do
       @client.get('key').should == 'value'
     end
-    
+
     it "should not be able to retrieve the value after deleting" do
       @client.delete('key')
       @client.get('key').should be_nil
@@ -96,9 +96,21 @@ describe JMemCache do
       @client['key'] = 'val'
       @client.get('key').should == 'val'
     end
-    
   end
   
+  describe "using the Hash notation" do
+    before :each do
+      @client['key'] = 'value'
+    end
+    
+    it "should be able to retrieve the value using []" do
+      @client['key'].should == 'value'
+    end
+    
+    it "should be able to retrieve the value using get" do
+      @client.get('key').should == 'value'
+    end
+  end
 
   describe "#stats" do
     it "should return a hash" do    
