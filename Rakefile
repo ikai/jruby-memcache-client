@@ -21,8 +21,8 @@ if RUBY_PLATFORM =~ /java/i
     desc "Run the specs for the jruby-memcache-client gem"
     Spec::Rake::SpecTask.new
   rescue LoadError
-    puts "You must have spec installed in order to run the tests."
+    puts "You must have rspec installed in order to run the tests."
   end
 else
-  puts "You must run rake under JRuby if you want to be able to run the specs."
+  puts "You must run rake under JRuby."
 end
