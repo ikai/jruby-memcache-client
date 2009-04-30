@@ -4,7 +4,7 @@ This project is a JRuby wrapper of the Java MemCache library by Greg Whalin
 
 http://www.whalin.com/memcached/
 
-In production, the standard Ruby MemCache client can cause a thread to hang. In the Glassfish application server, by default there are 5 Grizzly connectors that handle incoming requests. A site that uses MemCache heavily can quickly cause all Grizzly connectors to block and take down a site. I'm hoping that this work I am doing here will help others adopt JRuby as a production platform for their Ruby on Rails applications. 
+In production, the standard Ruby MemCache client can cause a thread to hang. In the Glassfish application server, by default there are 5 Grizzly connectors that handle incoming requests. A site that uses MemCache heavily can quickly cause all Grizzly connectors to block and take down a site. I'm hoping that this work I am doing here will help others adopt JRuby as a production platform for their Ruby on Rails applications.
 
 The Ruby MemCache library was never written with threaded applications in mind. All threads use the same socket, and multithreaded mode basically wraps the IO with a Mutex. The Java library provides several features that are not available in the Ruby MemCache library:
 
@@ -18,7 +18,7 @@ Installation
 This is a ruby gem that can be installed.
 
 gem sources -a http://gems.github.com
-gem install abhiyerra-jruby-memcache-client --remote
+gem install fredjean-jruby-memcache-client --remote
 
 Configuration
 -------------
