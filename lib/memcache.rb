@@ -138,6 +138,24 @@ class MemCache
   
   alias :[] :get
 
+  def get_multi(keys, raw = false)
+    keys = keys.map {|k| make_cache_key(k)}
+    keys = keys.to_java :String
+    values = {}
+    values_j = @client.getMulti(keys)
+#    require 'ruby-debug';debugger
+    values_j.to_a.each {|kv|
+      k,v = kv
+      next if v.nil?
+      unless raw
+        marshal_bytes = java.lang.String.new(v).getBytes(MARSHALLING_CHARSET)
+        v = Marshal.load(String.from_java_bytes(marshal_bytes))
+      end
+      values[k] = v
+    }
+    values
+  end
+
   def set(key, value, expiry = 0, raw = false)
     value = marshal_value(value) unless raw
     key = make_cache_key(key)
@@ -197,22 +215,22 @@ class MemCache
   end
     
   protected
-    def make_cache_key(key)
-      if namespace.nil? then
-        key
-      else
-        "#{@namespace}:#{key}"
-      end
+  def make_cache_key(key)
+    if namespace.nil? then
+      key
+    else
+      "#{@namespace}:#{key}"
     end
+  end
     
-    def expiration(expiry)
-      java.util.Date.new((Time.now.to_i + expiry) * 1000)
-    end
+  def expiration(expiry)
+    java.util.Date.new((Time.now.to_i + expiry) * 1000)
+  end
     
-    def marshal_value(value)
-      marshal_bytes = Marshal.dump(value).to_java_bytes
-      java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
-    end
+  def marshal_value(value)
+    marshal_bytes = Marshal.dump(value).to_java_bytes
+    java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
+  end
     
   class MemCacheError < RuntimeError; end
   

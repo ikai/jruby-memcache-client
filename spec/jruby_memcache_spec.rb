@@ -1,5 +1,6 @@
-require 'rubygems'
-require 'spec'
+#require 'rubygems'
+#require 'spec'
+
 require File.dirname(__FILE__) + '/../lib/memcache'
 
 describe MemCache do
@@ -185,7 +186,23 @@ describe MemCache do
   end
     
   describe "#get_multi" do
-    it "should be implemented"
+    it "should get 2 keys" do
+      @client.set('key', 'val')
+      @client.set('key2', 'val2')
+      @client.get_multi(%w/key key2/).should == {'key' => 'val', 'key2' => 'val2'}
+    end
+
+    it "should ignore nil values" do
+      @client.set('key', 'val')
+      @client.set('key2', 'val2')
+      @client.get_multi(%w/key key2 key3/).should == {'key' => 'val', 'key2' => 'val2'}
+    end
+
+    it "should not marshall if requested" do
+      @client.set('key', 'val', 0, true)
+      @client.set('key2', 'val2', 0, true)
+      @client.get_multi(%w/key key2/, true).should == {'key' => 'val', 'key2' => 'val2'}
+    end
   end
 end
 
