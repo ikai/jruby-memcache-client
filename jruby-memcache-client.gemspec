@@ -2,22 +2,26 @@
 
 Gem::Specification.new do |s|
   s.name = %q{jruby-memcache-client}
-  s.version = "1.5.0"
+  s.version = "1.5.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Abhi Yerra", "Ikai Lan", "Frederic Jean", "Lenny Day-Reynolds"]
-  s.date = %q{2009-04-13}
+  s.authors = ["Abhi Yerra", "Ikai Lan", "Frederic Jean", "Lennon Day-Reynolds"]
+  s.date = %q{2009-05-20}
   s.description = %q{A drop in replacement for Ruby's memcache-client.}
   s.email = %q{abhi@traytwo.com}
   s.extra_rdoc_files = [
     "README"
   ]
   s.files = [
-    "Rakefile",
-    "VERSION.yml",
-    "lib/java/java_memcached-release_2.0.1.jar",
-    "lib/memcache.rb",
-    "spec/jruby_memcache_spec.rb"
+    ".gitignore",
+     "MIT-LICENSE",
+     "README",
+     "Rakefile",
+     "VERSION.yml",
+     "jruby-memcache-client.gemspec",
+     "lib/java/java_memcached-release_2.0.1.jar",
+     "lib/memcache.rb",
+     "spec/jruby_memcache_spec.rb"
   ]
   s.has_rdoc = true
   s.homepage = %q{http://github.com/abhiyerra/jruby-memcache-client}
