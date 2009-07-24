@@ -20,6 +20,40 @@ This is a ruby gem that can be installed.
 gem sources -a http://gems.github.com
 gem install fredjean-jruby-memcache-client --remote
 
+Replacing Rail's MemCache Client
+--------------------------------
+
+Rails ships with a bundled copy of the MemCache client. This client will prevent you from using this gem instead. Adding the following code into your environment.rb file:
+
+if RUBY_PLATFORM =~ /java/i
+  # Based on instructions from http://www.mikeperham.com/2009/03/03/using-memcache-client-16x-in-rails-23/
+  # Brain surgery to use our own version of memcache-client without
+  # having to modify activesupport directly.
+  # Unload any previous instance of the class
+  if Object.const_defined? :MemCache
+    Object.instance_eval { remove_const :MemCache }
+  end
+  # Pull in the exact version we want
+  gem 'fredjean-jruby-memcache-client', '1.5.0'
+
+  # Ensure that the memcache-client path is at the front of the loadpath
+  $LOAD_PATH.each do |path|
+    if path =~ /fredjean-jruby-memcache-client/
+      $LOAD_PATH.delete(path)
+      $LOAD_PATH.unshift(path)
+    end
+  end
+  # If Ruby thinks it's already loaded memcache.rb, force
+  # a reload otherwise just require.
+  if $".find { |file| file =~ /\Amemcache.rb\Z/ }
+    load 'memcache.rb'
+  else
+    require 'memcache'
+  end
+end
+
+This will remove the original MemCache client and load our version of the MemCache class instead.
+
 Configuration
 -------------
 The JRuby MemCache client uses the same configuration options as the regular MemCache client. Here is how to build the configuration in your environment.rb file:
