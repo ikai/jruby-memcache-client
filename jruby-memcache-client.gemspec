@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
      "spec/jruby_memcache_spec.rb"
   ]
   s.has_rdoc = true
-  s.homepage = %q{http://github.com/abhiyerra/jruby-memcache-client}
+  s.homepage = %q{http://github.com/ikai/jruby-memcache-client}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.1}
