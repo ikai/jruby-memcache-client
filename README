@@ -18,7 +18,7 @@ Installation
 This is a ruby gem that can be installed.
 
 gem sources -a http://gems.github.com
-gem install fredjean-jruby-memcache-client --remote
+gem install jruby-memcache-client --remote
 
 Configuration
 -------------
