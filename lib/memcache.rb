@@ -143,7 +143,6 @@ class MemCache
     keys = keys.to_java :String
     values = {}
     values_j = @client.getMulti(keys)
-#    require 'ruby-debug';debugger
     values_j.to_a.each {|kv|
       k,v = kv
       next if v.nil?
