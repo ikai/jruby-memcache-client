@@ -25,7 +25,7 @@ class MemCache
   }
   
   ## CHARSET for Marshalling
-  MARSHALLING_CHARSET = 'ISO-8859-1'
+  MARSHALLING_CHARSET = 'UTF-8'
 
   ##
   # Default memcached port.
