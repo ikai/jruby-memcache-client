@@ -1,10 +1,12 @@
+require 'java'
+
 require File.dirname(__FILE__) + '/java/java_memcached-release_2.0.1.jar'
 
 class MemCache
   include_class 'com.danga.MemCached.MemCachedClient'
   include_class 'com.danga.MemCached.SockIOPool'
-    
-  VERSION = '1.5.0'
+
+  VERSION = '1.6.0'
 
   ##
   # Default options for the cache object.
@@ -23,7 +25,7 @@ class MemCache
     :pool_socket_connect_timeout => 3000,
     :pool_name => 'default'
   }
-  
+
   ## CHARSET for Marshalling
   MARSHALLING_CHARSET = 'UTF-8'
 
@@ -36,7 +38,7 @@ class MemCache
   # Default memcached server weight.
 
   DEFAULT_WEIGHT = 1
-  
+
   attr_accessor :request_timeout
 
   ##
@@ -52,7 +54,7 @@ class MemCache
   ##
   # The configured socket pool name for this client.
   attr_reader :pool_name
-  
+
   def initialize(*args)
     @servers = []
     opts = {}
@@ -75,15 +77,15 @@ class MemCache
     end
 
     opts = DEFAULT_OPTIONS.merge opts
-        
+
     @namespace = opts[:namespace] || opts["namespace"]
     @pool_name = opts[:pool_name] || opts["pool_name"]
 
     @client = MemCachedClient.new(@pool_name)
-    
-    @client.primitiveAsString = true 
+
+    @client.primitiveAsString = true
     @client.sanitizeKeys = false
-  	
+
     weights = Array.new(@servers.size, DEFAULT_WEIGHT)
 
     @pool = SockIOPool.getInstance(@pool_name)
@@ -91,21 +93,21 @@ class MemCache
       # // set the servers and the weights
       @pool.servers = @servers.to_java(:string)
       @pool.weights = weights.to_java(:Integer)
-      
+
       # // set some basic pool settings
       # // 5 initial, 5 min, and 250 max conns
       # // and set the max idle time for a conn
       # // to 6 hours
       @pool.initConn = opts[:pool_initial_size]
-      @pool.minConn = opts[:pool_min_size] 
+      @pool.minConn = opts[:pool_min_size]
       @pool.maxConn = opts[:pool_max_size]
       @pool.maxIdle = opts[:pool_max_idle]
-      
+
       # // set the sleep for the maint thread
       # // it will wake up every x seconds and
       # // maintain the pool size
       @pool.maintSleep = opts[:pool_maintenance_thread_sleep]
-      # 
+      #
       # // set some TCP settings
       # // disable nagle
       # // set the read timeout to 3 secs
@@ -117,14 +119,16 @@ class MemCache
       @pool.initialize__method
     end
   end
-  
+
   def servers
     @pool.get_servers.to_a rescue []
   end
-  
+
   def alive?
     @pool.servers.to_a.any?
   end
+
+  alias :active? :alive?
 
   def get(key, raw = false)
     value = @client.get(make_cache_key(key))
@@ -135,7 +139,7 @@ class MemCache
     end
     value
   end
-  
+
   alias :[] :get
 
   def get_multi(keys, raw = false)
@@ -164,7 +168,7 @@ class MemCache
       @client.set key, value, expiration(expiry)
     end
   end
-  
+
   alias :[]= :set
 
   def add(key, value, expiry = 0, raw = false)
@@ -175,29 +179,29 @@ class MemCache
       @client.add make_cache_key(key), value, expiration(expiry)
     end
   end
-  
+
   def delete(key, expiry = 0)
     @client.delete(make_cache_key(key))
   end
-  
+
   def incr(key, amount = 1)
     value = get(key) || 0
     value += amount
     set key, value
     value
   end
-  
+
   def decr(key, amount = 1)
     value = get(key) || 0
     value -= amount
     set key, value
     value
   end
-  
+
   def flush_all
     @client.flushAll
   end
-  
+
   def stats
     stats_hash = {}
     @client.stats.each do |server, stats|
@@ -212,7 +216,7 @@ class MemCache
     end
     stats_hash
   end
-    
+
   protected
   def make_cache_key(key)
     if namespace.nil? then
@@ -221,17 +225,17 @@ class MemCache
       "#{@namespace}:#{key}"
     end
   end
-    
+
   def expiration(expiry)
     java.util.Date.new((Time.now.to_i + expiry) * 1000)
   end
-    
+
   def marshal_value(value)
     marshal_bytes = Marshal.dump(value).to_java_bytes
     java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
   end
-    
+
   class MemCacheError < RuntimeError; end
-  
+
 end
 
