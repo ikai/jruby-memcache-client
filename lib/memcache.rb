@@ -123,6 +123,11 @@ class MemCache
     end
   end
 
+  def reset
+    @pool.shut_down
+    @pool.initialize__method
+  end
+
   ##
   # Returns the servers that the client has been configured to
   # use. Injects an alive? method into the string so it works with the
@@ -216,7 +221,7 @@ class MemCache
   # will ignore values that are not already present in the cache,
   # which makes this safe to use without first checking for the
   # existance of the key in the cache first.
-  def delete(key)
+  def delete(key, expires = 0)
     raise MemCacheError, "Update of readonly cache" if @readonly
     @client.delete(make_cache_key(key))
   end
