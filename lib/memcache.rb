@@ -55,6 +55,8 @@ class MemCache
   # The configured socket pool name for this client.
   attr_reader :pool_name
 
+  ##
+  # Configures the client
   def initialize(*args)
     @servers = []
     opts = {}
@@ -80,6 +82,7 @@ class MemCache
 
     @namespace = opts[:namespace] || opts["namespace"]
     @pool_name = opts[:pool_name] || opts["pool_name"]
+    @readonly = opts[:readonly] || opts["readonly"]
 
     @client = MemCachedClient.new(@pool_name)
 
@@ -120,16 +123,33 @@ class MemCache
     end
   end
 
+  ##
+  # Returns the servers that the client has been configured to
+  # use. Injects an alive? method into the string so it works with the
+  # updated Rails MemCacheStore session store class.
   def servers
-    @pool.get_servers.to_a rescue []
+    @pool.servers.to_a.collect do |s|
+      s.instance_eval(<<-EOIE)
+      def alive?
+        #{!!stats[s]}
+      end
+      EOIE
+      s
+    end rescue []
   end
 
+  ##
+  # Determines whether any of the connections to the servers is
+  # alive. We are alive if it is the case.
   def alive?
-    @pool.servers.to_a.any?
+    servers.to_a.any? { |s| s.alive? }
   end
 
   alias :active? :alive?
 
+  ##
+  # Retrieves a value associated with the key from the
+  # cache. Retrieves the raw value if the raw parameter is set.
   def get(key, raw = false)
     value = @client.get(make_cache_key(key))
     return nil if value.nil?
@@ -142,6 +162,8 @@ class MemCache
 
   alias :[] :get
 
+  ##
+  # Retrieves the values associated with the keys parameter.
   def get_multi(keys, raw = false)
     keys = keys.map {|k| make_cache_key(k)}
     keys = keys.to_java :String
@@ -159,7 +181,12 @@ class MemCache
     values
   end
 
+  ##
+  # Associates a value with a key in the cache. MemCached will expire
+  # the value if an expiration is provided. The raw parameter allows
+  # us to store a value without marshalling it first.
   def set(key, value, expiry = 0, raw = false)
+    raise MemCacheError, "Update of readonly cache" if @readonly
     value = marshal_value(value) unless raw
     key = make_cache_key(key)
     if expiry == 0
@@ -171,7 +198,11 @@ class MemCache
 
   alias :[]= :set
 
+  ##
+  # Add a new value to the cache following the same conventions that
+  # are used in the set method.
   def add(key, value, expiry = 0, raw = false)
+    raise MemCacheError, "Update of readonly cache" if @readonly
     value = marshal_value(value) unless raw
     if expiry == 0
       @client.add make_cache_key(key), value
@@ -180,28 +211,58 @@ class MemCache
     end
   end
 
-  def delete(key, expiry = 0)
+  ##
+  # Removes the value associated with the key from the cache. This
+  # will ignore values that are not already present in the cache,
+  # which makes this safe to use without first checking for the
+  # existance of the key in the cache first.
+  def delete(key)
+    raise MemCacheError, "Update of readonly cache" if @readonly
     @client.delete(make_cache_key(key))
   end
 
+  ##
+  # Replaces the value associated with a key in the cache if it
+  # already is stored. It will not add the value to the cache if it
+  # isn't already present.
+  def replace(key, value, expiry = 0, raw = false)
+    raise MemCacheError, "Update of readonly cache" if @readonly
+    value = marshal_value(value) unless raw
+    if expiry == 0
+      @client.replace make_cache_key(key), value
+    else
+      @client.replace make_cache_key(key), value
+    end
+  end
+
+  ##
+  # Increments the value associated with the key by a certain amount.
   def incr(key, amount = 1)
+    raise MemCacheError, "Update of readonly cache" if @readonly
     value = get(key) || 0
     value += amount
     set key, value
     value
   end
 
+  ##
+  # Decrements the value associated with the key by a certain amount.
   def decr(key, amount = 1)
+    raise MemCacheError, "Update of readonly cache" if @readonly
     value = get(key) || 0
     value -= amount
     set key, value
     value
   end
 
+  ##
+  # Clears the cache.
   def flush_all
-    @client.flushAll
+    @client.flush_all
   end
 
+  ##
+  # Reports statistics on the cache.
   def stats
     stats_hash = {}
     @client.stats.each do |server, stats|
@@ -216,6 +277,8 @@ class MemCache
     end
     stats_hash
   end
+
+  class MemCacheError < RuntimeError; end
 
   protected
   def make_cache_key(key)
@@ -234,8 +297,5 @@ class MemCache
     marshal_bytes = Marshal.dump(value).to_java_bytes
     java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
   end
-
-  class MemCacheError < RuntimeError; end
-
 end
 

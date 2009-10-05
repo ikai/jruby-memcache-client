@@ -97,6 +97,21 @@ describe MemCache do
     end
   end
 
+  describe "replacing values from the cache." do
+    before :each do
+      @client['key'] = 'value'
+    end
+
+    it "should be able to replace the stored value." do
+      @client.replace('key', 'new value').should be_true
+      @client['key'].should == 'new value'
+    end
+
+    it "should not replace values that are not in the cache." do
+      @client.replace('notthere', 'value').should be_false
+    end
+  end
+
   describe "using the Hash notation" do
     before :each do
       @client['key'] = 'value'
@@ -200,6 +215,28 @@ describe MemCache do
       @client.set('key', 'val', 0, true)
       @client.set('key2', 'val2', 0, true)
       @client.get_multi(%w/key key2/, true).should == {'key' => 'val', 'key2' => 'val2'}
+    end
+  end
+
+  describe "aliveness of the MemCache server." do
+    before :each do
+      @servers = ["localhost:11211", "localhost:11212", {:pool_name => "test"}]
+      @client = MemCache.new @servers
+      @client.flush_all
+    end
+
+    it "should report the client as being alive." do
+      @client.should be_alive
+    end
+
+    it "should report localhost:11211 as being alive." do
+      servers = @client.servers
+      servers.first.should be_alive
+    end
+
+    it "should report localhost:11212 as not being alive." do
+      servers = @client.servers
+      servers.find {|s| s.to_s == "localhost:11212"}.should be_nil
     end
   end
 end
