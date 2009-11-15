@@ -24,7 +24,7 @@ jruby -S gem tumble
 
 You will then be able to install the JRuby Memcache Client gem:
 
-gem install jruby-memcache-client
+jruby -S gem install jruby-memcache-client
 
 Replacing Rail's MemCache Client
 --------------------------------
