@@ -15,10 +15,16 @@ As of right now this code only provides a very minimal amount of functionality, 
 
 Installation
 ------------
-This is a ruby gem that can be installed.
+This is a ruby gem that can be installed from gemcutter.org.
 
-gem sources -a http://gems.github.com
-gem install ikai-jruby-memcache-client --remote
+You will first need to install the gemcutter gem and configure your system to use it:
+
+jruby -S gem install gemcutter
+jruby -S gem tumble
+
+You will then be able to install the JRuby Memcache Client gem:
+
+gem install jruby-memcache-client
 
 Replacing Rail's MemCache Client
 --------------------------------
