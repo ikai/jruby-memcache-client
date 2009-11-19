@@ -1,4 +1,5 @@
 require 'java'
+require 'base64'
 
 require File.dirname(__FILE__) + '/java/java_memcached-release_2.0.1.jar'
 
@@ -160,7 +161,8 @@ class MemCache
     return nil if value.nil?
     unless raw
       marshal_bytes = java.lang.String.new(value).getBytes(MARSHALLING_CHARSET)
-      value = Marshal.load(String.from_java_bytes(marshal_bytes))
+      decoded = Base64.decode64(String.from_java_bytes(marshal_bytes))
+      value = Marshal.load(decoded)
     end
     value
   end
@@ -179,7 +181,8 @@ class MemCache
       next if v.nil?
       unless raw
         marshal_bytes = java.lang.String.new(v).getBytes(MARSHALLING_CHARSET)
-        v = Marshal.load(String.from_java_bytes(marshal_bytes))
+        decoded = Base64.decode64(String.from_java_bytes(marshal_bytes))
+        v = Marshal.load(decoded)
       end
       values[k] = v
     }
@@ -299,7 +302,7 @@ class MemCache
   end
 
   def marshal_value(value)
-    marshal_bytes = Marshal.dump(value).to_java_bytes
+    marshal_bytes = Base64.encode64(Marshal.dump(value)).to_java_bytes
     java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
   end
 end
