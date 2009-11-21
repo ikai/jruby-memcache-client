@@ -302,7 +302,8 @@ class MemCache
   end
 
   def marshal_value(value)
-    marshal_bytes = Base64.encode64(Marshal.dump(value)).to_java_bytes
+    encoded = Base64.encode64(Marshal.dump(value))
+    marshal_bytes = encoded.to_java_bytes
     java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
   end
 end

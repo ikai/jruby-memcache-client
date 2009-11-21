@@ -182,6 +182,20 @@ describe MemCache do
       @client.set('obj', obj)
       @client.get('obj').should == obj
     end
+
+    it %[should work with those whose marshalled stream contains invalid UTF8 byte sequences] do
+      # this test fails w/o the Base64 encoding step
+      obj = { :foo => 900 }
+      @client.set('obj', obj)
+      @client.get('obj').should == obj
+    end
+    
+    it %[should work with binary blobs] do
+      # this test fails w/o the Base64 encoding step
+      blob = "\377\330\377\340\000\020JFIF\000\001\001\000\000\001\000\001\000\000\377"
+      @client.set('blob', blob)
+      @client.get('blob').should == blob
+    end
   end
 
   describe "using set with an expiration" do
