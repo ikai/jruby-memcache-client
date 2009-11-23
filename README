@@ -40,7 +40,7 @@ if RUBY_PLATFORM =~ /java/i
     Object.instance_eval { remove_const :MemCache }
   end
   # Pull in the exact version we want
-  gem 'jruby-memcache-client', '1.6.0'
+  gem 'jruby-memcache-client', '1.6.1'
 
   # Ensure that the memcache-client path is at the front of the loadpath
   $LOAD_PATH.each do |path|
