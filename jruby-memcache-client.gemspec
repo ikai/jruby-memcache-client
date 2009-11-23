@@ -8,10 +8,10 @@ Gem::Specification.new do |s|
   s.version = "1.6.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Abhi Yerra", "Ikai Lan", "Frederic Jean", "Lennon Day-Reynolds"]
+  s.authors = ["Abhi Yerra", "Ikai Lan", "Frederic Jean", "Lennon Day-Reynolds", "slyphon"]
   s.date = %q{2009-11-22}
   s.description = %q{A drop in replacement for Ruby's memcache-client.}
-  s.email = %q{abhi@traytwo.com}
+  s.email = %q{fred@fredjean.net}
   s.extra_rdoc_files = [
     "README"
   ]
@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
      "lib/memcache.rb",
      "spec/jruby_memcache_spec.rb"
   ]
-  s.homepage = %q{http://github.com/abhiyerra/jruby-memcache-client}
+  s.homepage = %q{http://github.com/ikai/jruby-memcache-client}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.5}
