@@ -120,12 +120,16 @@ class MemCache
       @pool.socketTO = opts[:pool_socket_timeout]
       @pool.socketConnectTO = opts[:pool_socket_connect_timeout]
       @pool.aliveCheck = true
+      
+      # __method methods have been removed in jruby 1.5
       @pool.initialize__method rescue @pool.java_send :initialize
     end
   end
 
   def reset
     @pool.shut_down
+    
+    # __method methods have been removed in jruby 1.5
     @pool.initialize__method rescue @pool.java_send :initialize
   end
 
