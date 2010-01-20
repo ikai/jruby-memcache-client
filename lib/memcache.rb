@@ -1,13 +1,14 @@
 require 'java'
 require 'base64'
 
-require File.dirname(__FILE__) + '/java/java_memcached-release_2.0.1.jar'
+require File.dirname(__FILE__) + '/java/memcached-dev_2.0.2.jar'
 
 class MemCache
-  include_class 'com.danga.MemCached.MemCachedClient'
-  include_class 'com.danga.MemCached.SockIOPool'
+  include_class 'com.meetup.memcached.MemcachedClient'
+  include_class 'com.meetup.memcached.SockIOPool'
+  include_class 'com.meetup.memcached.Logger'
 
-  VERSION = '1.6.0'
+  VERSION = '1.7.0'
 
   ##
   # Default options for the cache object.
@@ -16,15 +17,20 @@ class MemCache
     :namespace   => nil,
     :readonly    => false,
     :multithread => true,
-    :pool_initial_size => 5,
+    :pool_initial_size => 10,
     :pool_min_size => 5,
-    :pool_max_size => 250,
-    :pool_max_idle => (1000 * 60 * 60 * 6),
-    :pool_maintenance_thread_sleep => 30,
+    :pool_max_size => 100,
+    :pool_max_idle => (1000 * 60 * 5),
+    :pool_max_busy => (1000 * 30),
+    :pool_maintenance_thread_sleep => (1000 * 30),
+    :pool_socket_timeout => (1000 * 3),
+    :pool_socket_connect_timeout => (1000 * 3),
+    :pool_use_alive => false,
+    :pool_use_failover => true,
+    :pool_use_failback => true,
     :pool_use_nagle => false,
-    :pool_socket_timeout => 3000,
-    :pool_socket_connect_timeout => 3000,
-    :pool_name => 'default'
+    :pool_name => 'default',
+    :log_level => 2
   }
 
   ## CHARSET for Marshalling
@@ -95,34 +101,30 @@ class MemCache
 
     @pool = SockIOPool.getInstance(@pool_name)
     unless @pool.initialized?
-      # // set the servers and the weights
       @pool.servers = @servers.to_java(:string)
       @pool.weights = weights.to_java(:Integer)
-
-      # // set some basic pool settings
-      # // 5 initial, 5 min, and 250 max conns
-      # // and set the max idle time for a conn
-      # // to 6 hours
+      
       @pool.initConn = opts[:pool_initial_size]
       @pool.minConn = opts[:pool_min_size]
       @pool.maxConn = opts[:pool_max_size]
+      
       @pool.maxIdle = opts[:pool_max_idle]
-
-      # // set the sleep for the maint thread
-      # // it will wake up every x seconds and
-      # // maintain the pool size
+      @pool.maxBusyTime = opts[:pool_max_busy]
       @pool.maintSleep = opts[:pool_maintenance_thread_sleep]
-      #
-      # // set some TCP settings
-      # // disable nagle
-      # // set the read timeout to 3 secs
-      # // and don't set a connect timeout
-      @pool.nagle = opts[:pool_use_nagle]
       @pool.socketTO = opts[:pool_socket_timeout]
       @pool.socketConnectTO = opts[:pool_socket_connect_timeout]
-      @pool.aliveCheck = true
-      @pool.initialize__method
+      
+      @pool.failover = opts[:pool_use_failover]
+      @pool.failback = opts[:pool_use_failback]
+      @pool.aliveCheck = opts[:pool_use_alive]
+      @pool.nagle = opts[:pool_use_nagle]
+      
+      # __method methods have been removed in jruby 1.5
+      @pool.initialize__method rescue @pool.java_send :initialize
     end
+    
+    Logger.getLogger('com.meetup.memcached.MemcachedClient').setLevel(opts[:log_level])
+    Logger.getLogger('com.meetup.memcached.SockIOPool').setLevel(opts[:log_level])
   end
 
   def reset
