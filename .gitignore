@@ -1,2 +1,7 @@
 .DS_Store
 nbproject/private
+*.swp
+*.orig
+pkg
+*.gem
+

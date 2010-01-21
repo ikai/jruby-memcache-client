@@ -2,13 +2,15 @@ require 'java'
 require File.dirname(__FILE__) + '/../lib/memcache'
 
 describe MemCache do
-  before(:all) do
+  before :all do
     @server = "127.0.0.1:11211"
     @client = MemCache.new @server
-    @client.flush_all
   end
 
-  after(:each) do
+  before :each do
+	  @client.flush_all
+  end
+  after :each do
     @client.flush_all
   end
 
@@ -38,9 +40,9 @@ describe MemCache do
     end
 
     it "should work with an error handler" do
-      include_class 'com.danga.MemCached.MemCachedClient'
+	  include_class 'com.meetup.memcached.MemcachedClient'
       java_memcache_client = mock.as_null_object
-      MemCachedClient.stub!(:new => java_memcache_client)
+      MemcachedClient.stub!(:new => java_memcache_client)
       error_handler = Object.new
       java_memcache_client.should_receive(:error_handler=).with(error_handler)
       @client = MemCache.new([@server], :error_handler => error_handler)
@@ -198,7 +200,7 @@ describe MemCache do
       @client.set('obj', obj)
       @client.get('obj').should == obj
     end
-    
+
     it %[should work with binary blobs] do
       # this test fails w/o the Base64 encoding step
       blob = "\377\330\377\340\000\020JFIF\000\001\001\000\000\001\000\001\000\000\377"
