@@ -91,7 +91,7 @@ class MemCache
     @pool_name = opts[:pool_name] || opts["pool_name"]
     @readonly = opts[:readonly] || opts["readonly"]
 
-    @client = MemCachedClient.new(@pool_name)
+    @client = MemcachedClient.new(@pool_name)
 
     @client.error_handler = opts[:error_handler] if opts[:error_handler]
     @client.primitiveAsString = true
@@ -103,33 +103,33 @@ class MemCache
     unless @pool.initialized?
       @pool.servers = @servers.to_java(:string)
       @pool.weights = weights.to_java(:Integer)
-      
+
       @pool.initConn = opts[:pool_initial_size]
       @pool.minConn = opts[:pool_min_size]
       @pool.maxConn = opts[:pool_max_size]
-      
+
       @pool.maxIdle = opts[:pool_max_idle]
       @pool.maxBusyTime = opts[:pool_max_busy]
       @pool.maintSleep = opts[:pool_maintenance_thread_sleep]
       @pool.socketTO = opts[:pool_socket_timeout]
       @pool.socketConnectTO = opts[:pool_socket_connect_timeout]
-      
+
       @pool.failover = opts[:pool_use_failover]
       @pool.failback = opts[:pool_use_failback]
       @pool.aliveCheck = opts[:pool_use_alive]
       @pool.nagle = opts[:pool_use_nagle]
-      
+
       # __method methods have been removed in jruby 1.5
-      @pool.initialize__method rescue @pool.java_send :initialize
+	  @pool.java_send :initialize rescue @pool.initialize__method
     end
-    
+
     Logger.getLogger('com.meetup.memcached.MemcachedClient').setLevel(opts[:log_level])
     Logger.getLogger('com.meetup.memcached.SockIOPool').setLevel(opts[:log_level])
   end
 
   def reset
     @pool.shut_down
-    @pool.initialize__method
+	@pool.java_send :initialize rescue @pool.initialize__method
   end
 
   ##
