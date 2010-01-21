@@ -36,6 +36,15 @@ describe MemCache do
       @client = MemCache.new([@server], :pool_name => 'new_pool')
       @client.pool_name.should == 'new_pool'
     end
+
+    it "should work with an error handler" do
+      include_class 'com.danga.MemCached.MemCachedClient'
+      java_memcache_client = mock.as_null_object
+      MemCachedClient.stub!(:new => java_memcache_client)
+      error_handler = Object.new
+      java_memcache_client.should_receive(:error_handler=).with(error_handler)
+      @client = MemCache.new([@server], :error_handler => error_handler)
+    end
   end
 
   describe "namespacing" do

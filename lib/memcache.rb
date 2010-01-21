@@ -87,6 +87,7 @@ class MemCache
 
     @client = MemCachedClient.new(@pool_name)
 
+    @client.error_handler = opts[:error_handler] if opts[:error_handler]
     @client.primitiveAsString = true
     @client.sanitizeKeys = false
 
