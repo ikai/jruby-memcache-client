@@ -6,7 +6,8 @@ begin
     gemspec.email = "fred@fredjean.net"
     gemspec.homepage = "http://github.com/ikai/jruby-memcache-client"
     gemspec.description = "A drop in replacement for Ruby's memcache-client."
-    gemspec.authors = ["Abhi Yerra", "Ikai Lan", "Frederic Jean", "Lennon Day-Reynolds", "slyphon"]
+    gemspec.authors = ["Abhi Yerra", "Ikai Lan", "Frederic Jean", "Lennon Day-Reynolds",
+		"slyphon", "Brayn Helmkamp", "Travis Tilley"]
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"

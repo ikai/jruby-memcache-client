@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.version = "1.7.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Abhi Yerra", "Ikai Lan", "Frederic Jean", "Lennon Day-Reynolds", "slyphon"]
+  s.authors = ["Abhi Yerra", "Ikai Lan", "Frederic Jean", "Lennon Day-Reynolds", "slyphon", "Brayn Helmkamp", "Travis Tilley"]
   s.date = %q{2010-01-21}
   s.description = %q{A drop in replacement for Ruby's memcache-client.}
   s.email = %q{fred@fredjean.net}
