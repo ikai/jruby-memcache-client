@@ -85,6 +85,9 @@ class MemCache
       raise ArgumentError, "wrong number of arguments (#{args.length} for 2)"
     end
 
+    Logger.getLogger('com.meetup.memcached.MemcachedClient').setLevel(opts[:log_level])
+    Logger.getLogger('com.meetup.memcached.SockIOPool').setLevel(opts[:log_level])
+
     opts = DEFAULT_OPTIONS.merge opts
 
     @namespace = opts[:namespace] || opts["namespace"]
@@ -123,8 +126,6 @@ class MemCache
 	  @pool.java_send :initialize rescue @pool.initialize__method
     end
 
-    Logger.getLogger('com.meetup.memcached.MemcachedClient').setLevel(opts[:log_level])
-    Logger.getLogger('com.meetup.memcached.SockIOPool').setLevel(opts[:log_level])
   end
 
   def reset
