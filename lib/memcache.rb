@@ -128,6 +128,16 @@ class MemCache
       @pool.aliveCheck = opts[:pool_use_alive]
       @pool.nagle = opts[:pool_use_nagle]
 
+      # public static final int NATIVE_HASH     = 0;        
+      #     // native String.hashCode();
+      # public static final int OLD_COMPAT_HASH = 1;        
+      #     // original compatibility hashing algorithm (works with other clients)
+      # public static final int NEW_COMPAT_HASH = 2;
+      #     // new CRC32 based compatibility hashing algorithm (works with other clients)
+      # public static final int CONSISTENT_HASH = 3;        
+      #     // MD5 Based -- Stops thrashing when a server added or removed
+      @pool.hashingAlg = opts[:pool_hashing_algorithm]
+
       # __method methods have been removed in jruby 1.5
 	  @pool.java_send :initialize rescue @pool.initialize__method
     end
@@ -257,20 +267,18 @@ class MemCache
   # Increments the value associated with the key by a certain amount.
   def incr(key, amount = 1)
     raise MemCacheError, "Update of readonly cache" if @readonly
-    value = get(key) || 0
-    value += amount
-    set key, value
-    value
+    value = @client.incr(make_cache_key(key))
+    return nil if value == "NOT_FOUND\r\n"
+    return value.to_i
   end
 
   ##
   # Decrements the value associated with the key by a certain amount.
   def decr(key, amount = 1)
     raise MemCacheError, "Update of readonly cache" if @readonly
-    value = get(key) || 0
-    value -= amount
-    set key, value
-    value
+    value = @client.decr(make_cache_key(key))
+    return nil if value == "NOT_FOUND\r\n"
+    return value.to_i
   end
 
   ##
