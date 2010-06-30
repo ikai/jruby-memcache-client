@@ -85,11 +85,11 @@ class MemCache
       raise ArgumentError, "wrong number of arguments (#{args.length} for 2)"
     end
 
-	# Normalizing the server(s) so they all have a port number.
-	
-	@servers = @servers.map do |server|
-	  server =~ /(.+):(\d+)/ ? server : "#{server}:#{DEFAULT_PORT}"
-	end
+    # Normalizing the server(s) so they all have a port number.
+
+    @servers = @servers.map do |server|
+      server =~ /(.+):(\d+)/ ? server : "#{server}:#{DEFAULT_PORT}"
+    end
 
     Logger.getLogger('com.meetup.memcached.MemcachedClient').setLevel(opts[:log_level])
     Logger.getLogger('com.meetup.memcached.SockIOPool').setLevel(opts[:log_level])
@@ -139,14 +139,14 @@ class MemCache
       @pool.hashingAlg = opts[:pool_hashing_algorithm]
 
       # __method methods have been removed in jruby 1.5
-	  @pool.java_send :initialize rescue @pool.initialize__method
+      @pool.java_send :initialize rescue @pool.initialize__method
     end
 
   end
 
   def reset
     @pool.shut_down
-	@pool.java_send :initialize rescue @pool.initialize__method
+    @pool.java_send :initialize rescue @pool.initialize__method
   end
 
   ##
@@ -267,7 +267,7 @@ class MemCache
   # Increments the value associated with the key by a certain amount.
   def incr(key, amount = 1)
     raise MemCacheError, "Update of readonly cache" if @readonly
-    value = @client.incr(make_cache_key(key))
+    value = @client.incr(make_cache_key(key), amount)
     return nil if value == "NOT_FOUND\r\n"
     return value.to_i
   end
@@ -276,7 +276,7 @@ class MemCache
   # Decrements the value associated with the key by a certain amount.
   def decr(key, amount = 1)
     raise MemCacheError, "Update of readonly cache" if @readonly
-    value = @client.decr(make_cache_key(key))
+    value = @client.decr(make_cache_key(key),amount)
     return nil if value == "NOT_FOUND\r\n"
     return value.to_i
   end
