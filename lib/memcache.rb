@@ -1,12 +1,12 @@
 require 'java'
 require 'base64'
 
-require File.dirname(__FILE__) + '/java/memcached-dev_2.0.2.jar'
+require File.dirname(__FILE__) + '/java/java_memcached-release_2.5.1.jar'
 
 class MemCache
-  include_class 'com.meetup.memcached.MemcachedClient'
-  include_class 'com.meetup.memcached.SockIOPool'
-  include_class 'com.meetup.memcached.Logger'
+  include_class 'com.danga.MemCached.MemCachedClient'
+  include_class 'com.danga.MemCached.SockIOPool'
+  include_class 'com.danga.MemCached.Logger'
 
   VERSION = '1.7.0'
 
@@ -100,7 +100,7 @@ class MemCache
     @pool_name = opts[:pool_name] || opts["pool_name"]
     @readonly = opts[:readonly] || opts["readonly"]
 
-    @client = MemcachedClient.new(@pool_name)
+    @client = MemCachedClient.new(@pool_name)
 
     @client.error_handler = opts[:error_handler] if opts[:error_handler]
     @client.primitiveAsString = true

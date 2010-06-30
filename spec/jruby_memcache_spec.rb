@@ -47,9 +47,9 @@ describe MemCache do
 		end
 
 		it "should work with an error handler" do
-		  include_class 'com.meetup.memcached.MemcachedClient'
+		  include_class 'com.danga.MemCached.MemCachedClient'
 		  java_memcache_client = mock.as_null_object
-		  MemcachedClient.stub!(:new => java_memcache_client)
+		  MemCachedClient.stub!(:new => java_memcache_client)
 		  error_handler = Object.new
 		  java_memcache_client.should_receive(:error_handler=).with(error_handler)
 		  @client = MemCache.new([@server], :error_handler => error_handler)
