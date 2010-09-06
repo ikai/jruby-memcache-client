@@ -180,9 +180,17 @@ class MemCache
     value = @client.get(make_cache_key(key))
     return nil if value.nil?
     unless raw
-      marshal_bytes = java.lang.String.new(value).getBytes(MARSHALLING_CHARSET)
-      decoded = Base64.decode64(String.from_java_bytes(marshal_bytes))
-      value = Marshal.load(decoded)
+      begin
+        marshal_bytes = java.lang.String.new(value).getBytes(MARSHALLING_CHARSET)
+        decoded = Base64.decode64(String.from_java_bytes(marshal_bytes))
+        value = Marshal.load(decoded)
+      rescue
+        value = case value
+          when /^\d+\.\d+$/ then value.to_f
+          when /^\d+$/ then value.to_i
+          else value
+        end
+      end
     end
     value
   end
@@ -200,9 +208,17 @@ class MemCache
       k,v = kv
       next if v.nil?
       unless raw
-        marshal_bytes = java.lang.String.new(v).getBytes(MARSHALLING_CHARSET)
-        decoded = Base64.decode64(String.from_java_bytes(marshal_bytes))
-        v = Marshal.load(decoded)
+        begin
+          marshal_bytes = java.lang.String.new(v).getBytes(MARSHALLING_CHARSET)
+          decoded = Base64.decode64(String.from_java_bytes(marshal_bytes))
+          v = Marshal.load(decoded)
+        rescue
+          v = case v
+            when /^\d+\.\d+$/ then v.to_f
+            when /^\d+$/ then v.to_i
+            else v
+          end
+        end
       end
       values[k] = v
     }
@@ -320,6 +336,7 @@ class MemCache
   end
 
   def marshal_value(value)
+    return value if value.kind_of?(Numeric)
     encoded = Base64.encode64(Marshal.dump(value))
     marshal_bytes = encoded.to_java_bytes
     java.lang.String.new(marshal_bytes, MARSHALLING_CHARSET)
