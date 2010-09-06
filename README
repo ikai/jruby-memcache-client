@@ -26,6 +26,11 @@ You will then be able to install the JRuby Memcache Client gem:
 
 jruby -S gem install jruby-memcache-client
 
+Java Requirements
+-----------------
+
+The underlying library used for this project was compiled using Java 6. You will not be able to run this gem under Java 5 out of the box. You can however clone http://github.com/gwhalin/Memcached-Java-Client and attempt to build it under Java 5 if you must. (You really should consider upgrading to Java 6 since Oracle no longer supports Java 5.)
+
 Replacing Rail's MemCache Client
 --------------------------------
 
