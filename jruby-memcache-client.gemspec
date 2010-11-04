@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Abhi Yerra", "Ikai Lan", "Frederic Jean", "Lennon Day-Reynolds", "slyphon", "Brayn Helmkamp", "Travis Tilley"]
-  s.date = %q{2010-01-21}
+  s.date = %q{2010-11-03}
   s.description = %q{A drop in replacement for Ruby's memcache-client.}
   s.email = %q{fred@fredjean.net}
   s.extra_rdoc_files = [
@@ -22,14 +22,14 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION.yml",
      "jruby-memcache-client.gemspec",
-     "lib/java/memcached-dev_2.0.2.jar",
+     "lib/java/java_memcached-release_2.5.1.jar",
      "lib/memcache.rb",
      "spec/jruby_memcache_spec.rb"
   ]
   s.homepage = %q{http://github.com/ikai/jruby-memcache-client}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{A drop in replacement for Ruby's memcache-client.}
   s.test_files = [
     "spec/jruby_memcache_spec.rb"
