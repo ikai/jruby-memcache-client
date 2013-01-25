@@ -5,7 +5,7 @@ describe MemCache do
 
   hostname = `hostname`.strip
 
-  ["127.0.0.1:11211", "127.0.0.1", hostname, "#{hostname}:11211"].each do |server|
+  ["127.0.0.1:11211", "127.0.0.1", "localhost:11211", "localhost"].each do |server|
     before :all do
       @server = server
       @normalized_server = @server =~ /(.+):(\d+)/ ? @server : "#{@server}:11211" 
@@ -47,7 +47,7 @@ describe MemCache do
       end
 
       it "should work with an error handler" do
-        include_class 'com.danga.MemCached.MemCachedClient'
+        java_import 'com.danga.MemCached.MemCachedClient'
         java_memcache_client = mock.as_null_object
         MemCachedClient.stub!(:new => java_memcache_client)
         error_handler = Object.new

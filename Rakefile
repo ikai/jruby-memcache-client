@@ -15,13 +15,16 @@ end
 
 if RUBY_PLATFORM =~ /java/i
   begin
-    require 'spec/rake/spectask'
+    require 'rspec/core/rake_task'
 
     task :default => :spec
 
     desc "Run the specs for the jruby-memcache-client gem"
-    Spec::Rake::SpecTask.new
+    RSpec::Core::RakeTask.new(:spec)
   rescue LoadError
+
+    require 'pry'; binding.pry
+
     puts "You must have rspec installed in order to run the tests."
   end
 else

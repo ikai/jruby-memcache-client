@@ -4,4 +4,5 @@ nbproject/private
 *.orig
 pkg
 *.gem
+.ruby-version
 

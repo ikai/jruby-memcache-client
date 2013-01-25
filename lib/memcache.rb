@@ -4,11 +4,11 @@ require 'base64'
 require File.dirname(__FILE__) + '/java/java_memcached-release_2.5.1.jar'
 
 class MemCache
-  include_class 'com.danga.MemCached.MemCachedClient'
-  include_class 'com.danga.MemCached.SockIOPool'
-  include_class 'com.danga.MemCached.Logger'
+  java_import 'com.danga.MemCached.MemCachedClient'
+  java_import 'com.danga.MemCached.SockIOPool'
+  java_import 'com.danga.MemCached.Logger'
 
-  VERSION = '1.7.0'
+  VERSION = '1.7.1'
 
   ##
   # Default options for the cache object.
