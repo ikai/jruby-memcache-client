@@ -1,7 +1,9 @@
-source 'https://rubygems.org'
+source :rubygems
 
-gem 'jeweler'
-gem 'rake'
-gem 'rspec'
-gem 'pry'
-gem 'pry-nav'
+group :under_development do
+  gem 'jeweler'
+  gem 'rake'
+  gem 'rspec'
+  gem 'pry'
+  gem 'pry-nav'
+end
