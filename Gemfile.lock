@@ -23,7 +23,7 @@ GEM
       spoon (~> 0.0)
     pry-nav (0.2.3)
       pry (~> 0.9.10)
-    rake (10.0.3)
+    rake (12.3.3)
     rdoc (3.12)
       json (~> 1.4)
     rspec (2.12.0)
