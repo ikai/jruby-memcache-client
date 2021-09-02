@@ -9,8 +9,6 @@ GEM
       git (>= 1.2.5)
       rake
       rdoc
-    json (1.7.6)
-    json (1.7.6-java)
     method_source (0.8.1)
     pry (0.9.11.4)
       coderay (~> 1.0.5)
@@ -24,8 +22,7 @@ GEM
     pry-nav (0.2.3)
       pry (~> 0.9.10)
     rake (10.0.3)
-    rdoc (3.12)
-      json (~> 1.4)
+    rdoc (6.3.2)
     rspec (2.12.0)
       rspec-core (~> 2.12.0)
       rspec-expectations (~> 2.12.0)
